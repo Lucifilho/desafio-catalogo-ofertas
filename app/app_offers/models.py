@@ -10,6 +10,8 @@ class Product(models.Model):
     free_shipping = models.CharField(max_length=255, null=True, blank=True)
     percentual_discount = models.CharField(max_length=255, null=True, blank=True)
     image = models.URLField(null=True, blank=True)
+    shipping_info = models.CharField(max_length=255, null=True, blank=True)  # Adicionar este campo
+
 
     def __str__(self):
         return self.name
