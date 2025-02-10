@@ -39,7 +39,7 @@ def get_products(request):
     elementsInstallment = driver.find_elements(By.CLASS_NAME, "poly-price__installments")
     elementsLink = driver.find_elements(By.CLASS_NAME, "poly-component__title")
     elementsPricePrevious = driver.find_elements(By.CSS_SELECTOR, ".andes-money-amount.andes-money-amount--previous.andes-money-amount--cents-comma")
-    elementsEntirePrice = driver.find_elements(By.CSS_SELECTOR, ".poly-price__current .andes-money-amount.andes-money-amount--cents-superscript .andes-money-amount__fraction")
+    elementsPrice = driver.find_elements(By.CSS_SELECTOR, ".poly-price__current .andes-money-amount.andes-money-amount--cents-superscript .andes-money-amount__fraction")
     elementsTypeShipping = driver.find_elements(By.CLASS_NAME, "poly-component__shipped-from")
     elementsFreeShipping = driver.find_elements(By.CLASS_NAME, "poly-component__shipping")
     elementsPercentualDiscount = driver.find_elements(By.CLASS_NAME, "andes-money-amount__discount")
@@ -56,9 +56,15 @@ def get_products(request):
             image = "https://via.placeholder.com/150"  # URL de placeholder
 
         url = elementsLink[i].get_attribute('href')
-        pricePrevious = elementsPricePrevious[i].get_attribute("aria-label") if i < len(elementsPricePrevious) else None
-        entire_price = elementsEntirePrice[i].text if i < len(elementsEntirePrice) else None
-
+        pricePrevious = elementsPricePrevious[i].get_attribute("aria-label") if i < len(elementsPricePrevious) and \
+                                                                                elementsPricePrevious[i].get_attribute(
+                                                                                    "aria-label") else None
+        price_text = elementsPrice[i].text if i < len(elementsPrice) else None
+        if price_text:
+            price_text = price_text.replace('.', '').replace(',', '.')
+            price = float(price_text)
+        else:
+            price = None
 
         installment_quantity = elementsInstallment[i].text if i < len(elementsInstallment) else None
         shipping_type = "Entrega Full" if i < len(elementsTypeShipping) and elementsTypeShipping[i].text else "Entrega Normal"
@@ -75,7 +81,7 @@ def get_products(request):
             pricePrevious=pricePrevious,
             image=image,
             installment=installment_quantity,
-            entire_price=entire_price,
+            price=price,
             shipping_type=shipping_type,
             free_shipping=free_shipping,
             percentual_discount=percentual_discount,
@@ -83,7 +89,7 @@ def get_products(request):
         product.save()
         products.append(product)
 
-    driver.quit()
+    #driver.quit()
 
     return redirect('home')
 
@@ -97,9 +103,9 @@ def home(request):
         products = products.filter(free_shipping="Frete Grátis")
 
     if sort_option == 'highest_price':
-        products = products.order_by('-entire_price')
+        products = products.order_by('-price')
     elif sort_option == 'lowest_price':
-        products = products.order_by('entire_price')
+        products = products.order_by('price')
     elif sort_option == 'highest_discount':
         products = products.order_by('-percentual_discount')
 
