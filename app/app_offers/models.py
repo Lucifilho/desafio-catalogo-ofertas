@@ -1,17 +1,19 @@
 from django.db import models
 
 class Product(models.Model):
-    name = models.CharField(max_length=255)
-    link = models.URLField(null=True, blank=True)
-    pricePrevious = models.CharField(max_length=255, null=True, blank=True)
-    installment = models.CharField(max_length=255, null=True, blank=True)
-    entire_price = models.CharField(max_length=255, null=True, blank=True)
-    shipping_type = models.CharField(max_length=255, null=True, blank=True)
-    free_shipping = models.CharField(max_length=255, null=True, blank=True)
-    percentual_discount = models.CharField(max_length=255, null=True, blank=True)
-    image = models.URLField(null=True, blank=True)
-    shipping_info = models.CharField(max_length=255, null=True, blank=True)  # Adicionar este campo
+    name = models.CharField(max_length=255, verbose_name="Nome do Produto")
+    link = models.URLField(null=True, blank=True, verbose_name="Link")
+    pricePrevious = models.CharField(max_length=255, null=True, blank=True, verbose_name="Preço Anterior")
+    installment = models.CharField(max_length=255, null=True, blank=True, verbose_name="Parcelamento")
+    entire_price = models.CharField(max_length=255, null=True, blank=True, verbose_name="Preço Total")
+    shipping_type = models.CharField(max_length=255, null=True, blank=True, verbose_name="Tipo de Entrega")
+    free_shipping = models.CharField(max_length=255, null=True, blank=True, verbose_name="Frete Grátis")
+    percentual_discount = models.IntegerField(null=True, blank=True, verbose_name="Percentual de Desconto")
+    image = models.URLField(null=True, blank=True, verbose_name="Imagem")
 
+    class Meta:
+        verbose_name = "Produto"
+        verbose_name_plural = "Produtos"
 
     def __str__(self):
         return self.name

@@ -7,7 +7,6 @@ from selenium.webdriver.common.by import By
 import time
 from .models import Product
 
-
 def get_products(request):
     driver = webdriver.Chrome()
 
@@ -37,10 +36,10 @@ def get_products(request):
 
     elementsImage = driver.find_elements(By.CLASS_NAME, "poly-component__picture")
     elementsName = driver.find_elements(By.CLASS_NAME, "poly-component__title")
-    elementsPricePrevious = driver.find_elements(By.CLASS_NAME, "andes-money-amount--previous")
     elementsInstallment = driver.find_elements(By.CLASS_NAME, "poly-price__installments")
     elementsLink = driver.find_elements(By.CLASS_NAME, "poly-component__title")
-    elementsEntirePrice = driver.find_elements(By.CLASS_NAME, "andes-money-amount__fraction")
+    elementsPricePrevious = driver.find_elements(By.CSS_SELECTOR, ".andes-money-amount.andes-money-amount--previous.andes-money-amount--cents-comma")
+    elementsEntirePrice = driver.find_elements(By.CSS_SELECTOR, ".poly-price__current .andes-money-amount.andes-money-amount--cents-superscript .andes-money-amount__fraction")
     elementsTypeShipping = driver.find_elements(By.CLASS_NAME, "poly-component__shipped-from")
     elementsFreeShipping = driver.find_elements(By.CLASS_NAME, "poly-component__shipping")
     elementsPercentualDiscount = driver.find_elements(By.CLASS_NAME, "andes-money-amount__discount")
@@ -57,14 +56,18 @@ def get_products(request):
             image = "https://via.placeholder.com/150"  # URL de placeholder
 
         url = elementsLink[i].get_attribute('href')
-        pricePrevious = elementsPricePrevious[i].text if i < len(elementsPricePrevious) else None
-        installment_quantity = elementsInstallment[i].text if i < len(elementsInstallment) else None
+        pricePrevious = elementsPricePrevious[i].get_attribute("aria-label") if i < len(elementsPricePrevious) else None
         entire_price = elementsEntirePrice[i].text if i < len(elementsEntirePrice) else None
-        shipping_type = elementsTypeShipping[i].text + " Full" if i < len(elementsTypeShipping) and elementsTypeShipping[i].text else None
-        free_shipping = elementsFreeShipping[i].text if i < len(elementsFreeShipping) else None
-        percentual_discount = elementsPercentualDiscount[i].text if i < len(elementsPercentualDiscount) else None
+
+
+        installment_quantity = elementsInstallment[i].text if i < len(elementsInstallment) else None
+        shipping_type = "Entrega Full" if i < len(elementsTypeShipping) and elementsTypeShipping[i].text else "Entrega Normal"
+        free_shipping = "Frete Grátis" if i < len(elementsFreeShipping) else "Consulte o valor do frete"
+        percentual_discount_text = elementsPercentualDiscount[i].text if i < len(elementsPercentualDiscount) else None
+        percentual_discount = int(re.search(r'\d+', percentual_discount_text).group()) if percentual_discount_text else None
 
         # Criar o objeto Product com as informações obtidas
+
 
         product = Product(
             name=name,
@@ -85,8 +88,24 @@ def get_products(request):
     return redirect('home')
 
 def home(request):
+    free_shipping_filter = request.GET.get('free_shipping', 'all')
+    sort_option = request.GET.get('sort', 'default')
+
     products = Product.objects.all()
+
+    if free_shipping_filter == 'Frete Grátis':
+        products = products.filter(free_shipping="Frete Grátis")
+
+    if sort_option == 'highest_price':
+        products = products.order_by('-entire_price')
+    elif sort_option == 'lowest_price':
+        products = products.order_by('entire_price')
+    elif sort_option == 'highest_discount':
+        products = products.order_by('-percentual_discount')
+
     return render(request, 'catalog/catalog_offerings.html', {
         'pageTitle': 'Product Catalog',
-        'products': products
+        'products': products,
+        'free_shipping_filter': free_shipping_filter,
+        'sort_option': sort_option
     })
