@@ -1,5 +1,5 @@
 import re
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -37,12 +37,12 @@ def get_products(request):
 
     elementsImage = driver.find_elements(By.CLASS_NAME, "poly-component__picture")
     elementsName = driver.find_elements(By.CLASS_NAME, "poly-component__title")
-    elementsPrice = driver.find_elements(By.CLASS_NAME, "andes-money-amount")
+    elementsPricePrevious = driver.find_elements(By.CLASS_NAME, "andes-money-amount--previous")
     elementsInstallment = driver.find_elements(By.CLASS_NAME, "poly-price__installments")
     elementsLink = driver.find_elements(By.CLASS_NAME, "poly-component__title")
     elementsEntirePrice = driver.find_elements(By.CLASS_NAME, "andes-money-amount__fraction")
-    elementsTypeShipping = driver.find_elements(By.CLASS_NAME, "poly-component__shipping-type")
-    elementsFreeShipping = driver.find_elements(By.CLASS_NAME, "poly-component__free-shipping")
+    elementsTypeShipping = driver.find_elements(By.CLASS_NAME, "poly-component__shipped-from")
+    elementsFreeShipping = driver.find_elements(By.CLASS_NAME, "poly-component__shipping")
     elementsPercentualDiscount = driver.find_elements(By.CLASS_NAME, "andes-money-amount__discount")
 
     products = []
@@ -57,18 +57,19 @@ def get_products(request):
             image = "https://via.placeholder.com/150"  # URL de placeholder
 
         url = elementsLink[i].get_attribute('href')
-        price = elementsPrice[i].text if i < len(elementsPrice) else None
+        pricePrevious = elementsPricePrevious[i].text if i < len(elementsPricePrevious) else None
         installment_quantity = elementsInstallment[i].text if i < len(elementsInstallment) else None
         entire_price = elementsEntirePrice[i].text if i < len(elementsEntirePrice) else None
-        shipping_type = elementsTypeShipping[i].text if i < len(elementsTypeShipping) else None
+        shipping_type = elementsTypeShipping[i].text + " Full" if i < len(elementsTypeShipping) and elementsTypeShipping[i].text else None
         free_shipping = elementsFreeShipping[i].text if i < len(elementsFreeShipping) else None
         percentual_discount = elementsPercentualDiscount[i].text if i < len(elementsPercentualDiscount) else None
 
         # Criar o objeto Product com as informações obtidas
+
         product = Product(
             name=name,
             link=url,
-            price=price,
+            pricePrevious=pricePrevious,
             image=image,
             installment=installment_quantity,
             entire_price=entire_price,
@@ -81,10 +82,7 @@ def get_products(request):
 
     driver.quit()
 
-    return render(request, 'catalog/catalog_offerings.html', {
-        'pageTitle': pageTitle,
-        'products': products
-    })
+    return redirect('home')
 
 def home(request):
     products = Product.objects.all()
