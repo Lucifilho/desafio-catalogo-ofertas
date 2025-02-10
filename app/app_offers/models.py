@@ -5,7 +5,7 @@ class Product(models.Model):
     link = models.URLField(null=True, blank=True, verbose_name="Link")
     pricePrevious = models.CharField(max_length=255, null=True, blank=True, verbose_name="Preço Anterior")
     installment = models.CharField(max_length=255, null=True, blank=True, verbose_name="Parcelamento")
-    entire_price = models.CharField(max_length=255, null=True, blank=True, verbose_name="Preço Total")
+    price = models.FloatField(null=True, blank=True, verbose_name="Preço")
     shipping_type = models.CharField(max_length=255, null=True, blank=True, verbose_name="Tipo de Entrega")
     free_shipping = models.CharField(max_length=255, null=True, blank=True, verbose_name="Frete Grátis")
     percentual_discount = models.IntegerField(null=True, blank=True, verbose_name="Percentual de Desconto")
