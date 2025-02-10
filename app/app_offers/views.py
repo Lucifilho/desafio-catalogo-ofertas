@@ -96,11 +96,15 @@ def get_products(request):
 def home(request):
     free_shipping_filter = request.GET.get('free_shipping', 'all')
     sort_option = request.GET.get('sort', 'default')
+    shipping_type_filter = request.GET.get('shipping_type', 'all')
 
     products = Product.objects.all()
 
     if free_shipping_filter == 'Frete Grátis':
         products = products.filter(free_shipping="Frete Grátis")
+
+    if shipping_type_filter != 'all':
+        products = products.filter(shipping_type=shipping_type_filter)
 
     if sort_option == 'highest_price':
         products = products.order_by('-price')

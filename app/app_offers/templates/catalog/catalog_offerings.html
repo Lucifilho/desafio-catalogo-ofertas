@@ -28,6 +28,13 @@
                 <option value="Frete Grátis" {% if free_shipping_filter == 'Frete Grátis' %}selected{% endif %}>Frete Grátis</option>
             </select>
 
+            <label for="shipping_type" class="mb-2 text-sm font-medium text-gray-900 dark:text-white">Tipo de Entrega</label>
+            <select id="shipping_type" name="shipping_type" class="block w-full p-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <option value="all" {% if shipping_type_filter == 'all' %}selected{% endif %}>Todos</option>
+                <option value="Entrega Full" {% if shipping_type_filter == 'Entrega Full' %}selected{% endif %}>Entrega Full</option>
+                <option value="Entrega Normal" {% if shipping_type_filter == 'Entrega Normal' %}selected{% endif %}>Entrega Normal</option>
+            </select>
+
             <label for="sort" class="mb-2 text-sm font-medium text-gray-900 dark:text-white">Ordenar por</label>
             <select id="sort" name="sort" class="block w-full p-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 <option value="default" {% if sort_option == 'default' %}selected{% endif %}>Padrão</option>
